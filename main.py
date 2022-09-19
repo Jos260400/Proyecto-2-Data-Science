@@ -35,7 +35,7 @@ class main(object):
     # Entrada de eventos por video
     def event_amount_per_video(self):
         df = self.df
-        df = self.df[df['event'] == 'end']
+        df = df[df['event'] == 'end']
         df = df[['event', 'video_id']]
         df = df.groupby('video_id').count()
         #print(df.mean())
@@ -47,8 +47,25 @@ class main(object):
         plt.xlabel('Video ID')
         plt.show()
         """
-
+    
+    def time_per_event(self):
+        df = self.df
+        df['time_start'] = 0
+        df['time_end'] = 0
+        df.loc[df['event'] == 'start','time_start'] = df['time']
+        df.loc[df['event'] == 'end','time_end'] = df['time']
+        df = df.groupby('video_id').sum()
+        df['duration'] = df['time_end']-df['time_start']
+        # print(df['duration'].mean())
+        
+        df = df.sort_values('duration', ascending=False)
+        ax = df.plot.bar(y='duration',use_index=True)
+        plt.title('Total event duration per video')
+        plt.ylabel('Total event time')
+        plt.xlabel('Video ID')
+        plt.show()
+        
 
 exp = main('./data/train.csv')
-exp.event_amount_per_video()
+exp.time_per_event()
 
